@@ -1,8 +1,8 @@
 #To-do:
 
-fix unsecure routing( i.e. replace your name with another users to log on his acc)
-fix friends edit privlige
-check for sqli attacks
+1. fix unsecure routing( i.e. replace your name with another users in link to log on his acc)
+2. fix friends edit privlige
+3. check for sqli attacks
 
 
 # social-insecurity
