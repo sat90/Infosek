@@ -1,3 +1,10 @@
+#To-do:
+
+fix unsecure routing( i.e. replace your name with another users to log on his acc)
+fix friends edit privlige
+check for sqli attacks
+
+
 # social-insecurity
 
 This project defines a social media web application lacking many key security features. The goal is to identify as many of these as possible, and then proceed to patch them. It can also be used for practice from the perspective of an attacker.
@@ -25,7 +32,7 @@ flask run
 You should now be able to access the application through your web browser by accessing [localhost:5000](http://localhost:5000) in the address bar.
 
 ## Common issues
-Some installations show an error similar to this when starting the application for the first time: 
+Some installations show an error similar to this when starting the application for the first time:
 
 ```
 sqlite3.OperationalError: near "FOREIGN": syntax error
