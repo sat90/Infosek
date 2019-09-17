@@ -4,6 +4,8 @@
 2. fix friends edit privlige
 3. check for sqli attacks
 
+Document all changes, problems, fixes to these problems here:
+https://docs.google.com/document/d/1No9GyHkikDNwwPW2fMUcbhruDTgPzDR2u0jtzqTDnH0/edit?usp=sharing
 
 # social-insecurity
 
