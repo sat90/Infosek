@@ -27,6 +27,7 @@ def index():
         return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
 
+#test
 
 # content stream page
 @app.route('/stream/<username>', methods=['GET', 'POST'])
@@ -68,7 +69,7 @@ def friends(username):
             flash('User does not exist')
         else:
             query_db('INSERT INTO Friends (u_id, f_id) VALUES({}, {});'.format(user['id'], friend['id']))
-    
+
     all_friends = query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id={} AND f.f_id!={} ;'.format(user['id'], user['id']))
     return render_template('friends.html', title='Friends', username=username, friends=all_friends, form=form)
 
@@ -81,6 +82,6 @@ def profile(username):
             form.education.data, form.employment.data, form.music.data, form.movie.data, form.nationality.data, form.birthday.data, username
         ))
         return redirect(url_for('profile', username=username))
-    
+
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     return render_template('profile.html', title='profile', username=username, user=user, form=form)
