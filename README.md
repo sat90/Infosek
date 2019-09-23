@@ -1,7 +1,7 @@
-# To-do:
+# To-dodoo:
 
 1. fix unsecure routing( i.e. replace your name with another users in link to log on his acc) maybe using session
-2. fix friends edit privlige
+1. fix friends edit privlige
 3. check for sqli attacks
 
 Document all changes, problems, fixes to these problems here:
