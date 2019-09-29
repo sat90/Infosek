@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, session
 from app import app, query_db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
@@ -17,6 +17,8 @@ def index():
         if user == None:
             flash('Sorry, this user does not exist!')
         elif user['password'] == form.login.password.data:
+            session['logged_in'] = True
+            session["user"] = form.login.username.data
             return redirect(url_for('stream', username=form.login.username.data))
         else:
             flash('Sorry, wrong password!')
@@ -32,6 +34,8 @@ def index():
 # content stream page
 @app.route('/stream/<username>', methods=['GET', 'POST'])
 def stream(username):
+    if username != session["user"]:
+        return redirect(url_for('index'))
     form = PostForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.is_submitted():
@@ -61,6 +65,8 @@ def comments(username, p_id):
 # page for seeing and adding friends
 @app.route('/friends/<username>', methods=['GET', 'POST'])
 def friends(username):
+    if username != session["user"]:
+        return redirect(url_for('index'))
     form = FriendsForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.is_submitted():
@@ -77,7 +83,7 @@ def friends(username):
 @app.route('/profile/<username>', methods=['GET', 'POST'])
 def profile(username):
     form = ProfileForm()
-    if form.is_submitted():
+    if form.is_submitted() and username==session['user']:
         query_db('UPDATE Users SET education="{}", employment="{}", music="{}", movie="{}", nationality="{}", birthday=\'{}\' WHERE username="{}" ;'.format(
             form.education.data, form.employment.data, form.music.data, form.movie.data, form.nationality.data, form.birthday.data, username
         ))
