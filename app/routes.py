@@ -41,7 +41,8 @@ def index():
 @app.route('/stream/<username>', methods=['GET', 'POST'])
 def stream(username):
     if username != session["user"]:
-        return redirect(url_for('error', session["err"]="trying to get into another stream"))
+        session["err"]="trying to get into another stream"
+        return redirect(url_for('error'))
     form = PostForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.is_submitted():
