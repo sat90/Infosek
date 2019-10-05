@@ -10,6 +10,13 @@ import os
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
+
+    if "user" in session.keys():
+        if session["user"]:
+            return redirect(url_for('stream', username=session["user"]))
+    else:
+        session["user"] = None
+
     form = IndexForm()
 
     if form.login.is_submitted() and form.login.submit.data:
@@ -17,7 +24,6 @@ def index():
         if user == None:
             flash('Sorry, this user does not exist!')
         elif user['password'] == form.login.password.data:
-            session['logged_in'] = True
             session["user"] = form.login.username.data
             return redirect(url_for('stream', username=form.login.username.data))
         else:
@@ -35,7 +41,7 @@ def index():
 @app.route('/stream/<username>', methods=['GET', 'POST'])
 def stream(username):
     if username != session["user"]:
-        return redirect(url_for('index'))
+        return redirect(url_for('error', err="trying to get into another stream"))
     form = PostForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.is_submitted():
@@ -66,7 +72,8 @@ def comments(username, p_id):
 @app.route('/friends/<username>', methods=['GET', 'POST'])
 def friends(username):
     if username != session["user"]:
-        return redirect(url_for('index'))
+        session["err"]="trying to get into anothers friendlist"
+        return redirect(url_for('error'))
     form = FriendsForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.is_submitted():
@@ -83,11 +90,28 @@ def friends(username):
 @app.route('/profile/<username>', methods=['GET', 'POST'])
 def profile(username):
     form = ProfileForm()
-    if form.is_submitted() and username==session['user']:
-        query_db('UPDATE Users SET education="{}", employment="{}", music="{}", movie="{}", nationality="{}", birthday=\'{}\' WHERE username="{}" ;'.format(
-            form.education.data, form.employment.data, form.music.data, form.movie.data, form.nationality.data, form.birthday.data, username
-        ))
+    if form.is_submitted():
+        if username==session['user']:
+            query_db('UPDATE Users SET education="{}", employment="{}", music="{}", movie="{}", nationality="{}", birthday=\'{}\' WHERE username="{}" ;'.format(
+                form.education.data, form.employment.data, form.music.data, form.movie.data, form.nationality.data, form.birthday.data, username
+                ))
+        else:
+            session["err"]="trying to edit someone elses profile"
+            return redirect(url_for('error'))
+
         return redirect(url_for('profile', username=username))
 
+
+
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
-    return render_template('profile.html', title='profile', username=username, user=user, form=form)
+    return render_template('profile.html', title='profile', username=username, user=session["user"], form=form)
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    session["user"] = None
+    return redirect(url_for('index'))
+
+
+@app.route('/error', methods=['GET', 'POST'])
+def error():
+    return render_template('noaccess.html',username=session["user"], err = session["err"])
