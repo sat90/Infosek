@@ -6,5 +6,5 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'secret' # TODO: Use this with wtforms
     DATABASE = 'database.db'
     UPLOAD_PATH = 'app/static/uploads'
-    ALLOWED_EXTENSIONS = {'bmp', 'gif', 'jpeg', 'jpg', 'tex',
-     'doc', 'docx', 'odt', 'txt', 'pdf', 'png', 'rtf'} # Only allowing some file types.
+    ALLOWED_EXTENSIONS = {'gif', 'jpeg', 'jpg','png'} # Only allowing some file types.
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024
