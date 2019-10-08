@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, query_db
 from app.forms import PostForm, FriendsForm, ProfileForm, CommentsForm, RegisterForm, LoginForm, IndexForm
 from datetime import datetime
-from passlib.hash import pbkdf2_sha256 #pip install passlib
+from passlib.hash import pbkdf2_sha256 
 
 import os
 
@@ -13,10 +13,9 @@ import os
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
-
     if "user" in session.keys():
         if session["user"]:
-            return redirect(url_for('stream', username=session["user"]))
+            return redirect(url_for('stream', username=session["user"],sessionuser=session["user"]))
     else:
         session["user"] = None
 
@@ -35,7 +34,7 @@ def index():
             flash("Username or password incorrect")
         elif pbkdf2_sha256.verify(password_entered, user['password']):
             session["user"] = form.login.username.data
-            return redirect(url_for('stream', username=username_entered))
+            return redirect(url_for('stream', username=username_entered,sessionuser=session["user"]))
     elif form.register.validate_on_submit():
         username = form.register.username.data
         password = form.register.password.data
@@ -49,10 +48,9 @@ def index():
             return redirect(url_for('index')), flash('New user registered!')
         else:
             flash('Username already exists.')
+
     return render_template('index.html', title='Welcome', form=form)
 
-
-#test
 
 # content stream page
 @app.route('/stream/<username>', methods=['GET', 'POST'])
@@ -85,8 +83,9 @@ def stream(username):
 
     query = ('SELECT p.*, u.*, (SELECT COUNT(*) FROM Comments WHERE p_id=p.id) AS cc FROM Posts AS p JOIN Users AS u ON u.id=p.u_id WHERE p.u_id IN (SELECT u_id FROM Friends WHERE f_id=?) OR p.u_id IN (SELECT f_id FROM Friends WHERE u_id=?) OR p.u_id=? ORDER BY p.creation_time DESC;', (user['id'], user['id'], user['id']))
     posts = query_db(query)
-    return render_template('stream.html', title='Stream', username=username, form=form, posts=posts)
+    return render_template('stream.html', title='Stream', username=username,sessionuser=session["user"], form=form, posts=posts)
 
+  
 def legalimg(filename):
     if not "." in filename:
         return False
@@ -103,6 +102,7 @@ def allowed_image_filesize(filesize):
     else:
         return False
 
+
 # comment page for a given post and user.
 @app.route('/comments/<username>/<int:p_id>', methods=['GET', 'POST'])
 def comments(username, p_id):
@@ -117,7 +117,8 @@ def comments(username, p_id):
     post = query_db(query, one=True)
     query = ('SELECT DISTINCT * FROM Comments AS c JOIN Users AS u ON c.u_id=u.id WHERE c.p_id=? ORDER BY c.creation_time DESC;', (p_id,))
     all_comments = query_db(query)
-    return render_template('comments.html', title='Comments', username=username, form=form, post=post, comments=all_comments)
+    return render_template('comments.html', title='Comments', username=username,sessionuser=session["user"], form=form, post=post, comments=all_comments)
+
 
 # page for seeing and adding friends
 @app.route('/friends/<username>', methods=['GET', 'POST'])
@@ -139,7 +140,8 @@ def friends(username):
 
     query = ('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id=? AND f.f_id!=? ;', (user['id'], user['id']))
     all_friends = query_db(query)
-    return render_template('friends.html', title='Friends', username=username, friends=all_friends, form=form)
+    return render_template('friends.html', title='Friends', username=username, friends=all_friends,sessionuser=session["user"], form=form)
+
 
 # see and edit detailed profile information of a user
 @app.route('/profile/<username>', methods=['GET', 'POST'])
@@ -157,10 +159,10 @@ def profile(username):
 
         return redirect(url_for('profile', username=username))
 
-
     query = ('SELECT * FROM Users WHERE username=?;', (username,))
     user = query_db(query, one=True)
-    return render_template('profile.html', title='profile', username=username, user=session["user"], form=form)
+    return render_template('profile.html', title='profile', username=username, user=user, sessionuser=session["user"], form=form)
+
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
@@ -170,4 +172,5 @@ def logout():
 
 @app.route('/error', methods=['GET', 'POST'])
 def error():
-    return render_template('noaccess.html', username=session["user"], err = session["err"])
+    return render_template('noaccess.html', username=session["user"], err = session["err"],sessionuser=session["user"])
+
