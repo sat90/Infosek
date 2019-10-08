@@ -1,4 +1,5 @@
 from flask import render_template, flash, redirect, url_for, request, session
+from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, query_db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
@@ -23,15 +24,17 @@ def index():
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
         if user == None:
             flash('Sorry, this user does not exist!')
-        elif user['password'] == form.login.password.data:
+        elif check_password_hash(user['password'], form.login.password.data):
             session["user"] = form.login.username.data
             return redirect(url_for('stream', username=form.login.username.data))
         else:
             flash('Sorry, wrong password!')
 
     elif form.register.is_submitted() and form.register.submit.data:
+        password_hash = generate_password_hash(form.register.password.data)
         query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
-         form.register.last_name.data, form.register.password.data))
+         form.register.last_name.data, password_hash))
+        flash('Succesfully registered!')
         return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
 
@@ -115,4 +118,4 @@ def logout():
 
 @app.route('/error', methods=['GET', 'POST'])
 def error():
-    return render_template('noaccess.html',username=session["user"], err = session["err"])
+    return render_template('noaccess.html', username=session["user"], err = session["err"])
