@@ -10,7 +10,9 @@ import os
 app = Flask(__name__)
 Bootstrap(app)
 app.config.from_object(Config)
-app.config['DEBUG'] = True
+# app.config['DEBUG'] = True
+app.config['RECAPTCHA_PUBLIC_KEY'] = '6Ldje7wUAAAAAF4yvr1a8cliU_ujRZ9Ft194dZK9'
+app.config['RECAPTCHA_PRIVATE_KEY'] = '6Ldje7wUAAAAABNORn3m7cNbrC-LgnjinbxlmqI_'
 csrf = CSRFProtect(app)
 
 # TODO: Handle login management better, maybe with flask_login?
