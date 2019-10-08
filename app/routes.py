@@ -16,7 +16,7 @@ def index():
 
     if "user" in session.keys():
         if session["user"]:
-            return redirect(url_for('stream', username=session["user"]))
+            return redirect(url_for('stream', username=session["user"],sessionuser=session["user"]))
     else:
         session["user"] = None
 
@@ -34,7 +34,7 @@ def index():
             flash("Username or password incorrect")
         elif pbkdf2_sha256.verify(password_entered, user['password']):
             session["user"] = form.login.username.data
-            return redirect(url_for('stream', username=username_entered))
+            return redirect(url_for('stream', username=username_entered,sessionuser=session["user"]))
     elif form.register.validate_on_submit():
         username = form.register.username.data
         password = form.register.password.data
@@ -80,7 +80,7 @@ def stream(username):
         return redirect(url_for('stream', username=username))
 
     posts = query_db('SELECT p.*, u.*, (SELECT COUNT(*) FROM Comments WHERE p_id=p.id) AS cc FROM Posts AS p JOIN Users AS u ON u.id=p.u_id WHERE p.u_id IN (SELECT u_id FROM Friends WHERE f_id={0}) OR p.u_id IN (SELECT f_id FROM Friends WHERE u_id={0}) OR p.u_id={0} ORDER BY p.creation_time DESC;'.format(user['id']))
-    return render_template('stream.html', title='Stream', username=username, form=form, posts=posts)
+    return render_template('stream.html', title='Stream', username=username,sessionuser=session["user"], form=form, posts=posts)
 
 def legalimg(filename):
     if not "." in filename:
@@ -108,7 +108,7 @@ def comments(username, p_id):
 
     post = query_db('SELECT * FROM Posts WHERE id={};'.format(p_id), one=True)
     all_comments = query_db('SELECT DISTINCT * FROM Comments AS c JOIN Users AS u ON c.u_id=u.id WHERE c.p_id={} ORDER BY c.creation_time DESC;'.format(p_id))
-    return render_template('comments.html', title='Comments', username=username, form=form, post=post, comments=all_comments)
+    return render_template('comments.html', title='Comments', username=username,sessionuser=session["user"], form=form, post=post, comments=all_comments)
 
 # page for seeing and adding friends
 @app.route('/friends/<username>', methods=['GET', 'POST'])
@@ -126,7 +126,7 @@ def friends(username):
             query_db('INSERT INTO Friends (u_id, f_id) VALUES({}, {});'.format(user['id'], friend['id']))
 
     all_friends = query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id={} AND f.f_id!={} ;'.format(user['id'], user['id']))
-    return render_template('friends.html', title='Friends', username=username, friends=all_friends, form=form)
+    return render_template('friends.html', title='Friends', username=username, friends=all_friends,sessionuser=session["user"], form=form)
 
 # see and edit detailed profile information of a user
 @app.route('/profile/<username>', methods=['GET', 'POST'])
@@ -134,6 +134,7 @@ def profile(username):
     form = ProfileForm()
     if form.is_submitted():
         if username==session['user']:
+            print("trying to update profile")
             query_db('UPDATE Users SET education="{}", employment="{}", music="{}", movie="{}", nationality="{}", birthday=\'{}\' WHERE username="{}" ;'.format(
                 form.education.data, form.employment.data, form.music.data, form.movie.data, form.nationality.data, form.birthday.data, username
                 ))
@@ -141,12 +142,13 @@ def profile(username):
             session["err"]="trying to edit someone elses profile"
             return redirect(url_for('error'))
 
+
         return redirect(url_for('profile', username=username))
 
 
 
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
-    return render_template('profile.html', title='profile', username=username, user=session["user"], form=form)
+    return render_template('profile.html', title='profile', username=username, user=user, sessionuser=session["user"], form=form)
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
@@ -156,4 +158,4 @@ def logout():
 
 @app.route('/error', methods=['GET', 'POST'])
 def error():
-    return render_template('noaccess.html', username=session["user"], err = session["err"])
+    return render_template('noaccess.html', username=session["user"], err = session["err"],sessionuser=session["user"])
