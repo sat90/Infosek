@@ -1,7 +1,6 @@
 from flask import Flask, g
 from config import Config
 from flask_bootstrap import Bootstrap
-from flask_login import LoginManager
 import sqlite3
 import os
 
@@ -9,8 +8,6 @@ import os
 app = Flask(__name__)
 Bootstrap(app)
 app.config.from_object(Config)
-
-login = LoginManager(app)
 
 # get an instance of the db
 def get_db():
