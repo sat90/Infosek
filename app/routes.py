@@ -38,8 +38,8 @@ def index():
     elif form.register.validate_on_submit():
         username = form.register.username.data
         password = form.register.password.data
-        
-        encrypt_pswd = pbkdf2_sha256.hash(password) #Hashes and adds a 16byte salt, by default adds 29000 iterations. 
+
+        encrypt_pswd = pbkdf2_sha256.hash(password) #Hashes and adds a 16byte salt, by default adds 29000 iterations.
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
         if user == None:
             query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
