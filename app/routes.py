@@ -62,6 +62,16 @@ def stream(username):
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.is_submitted():
         if form.image.data:
+
+            filename=  form.image.data.filename
+            if filename == "":
+                session["err"]="no filename"
+                return redirect(url_for('error'))
+            if not legalimg(filename):
+                session["err"]="illegal filetype"
+                return redirect(url_for('error'))
+
+
             path = os.path.join(app.config['UPLOAD_PATH'], form.image.data.filename)
             form.image.data.save(path)
 
@@ -71,6 +81,22 @@ def stream(username):
 
     posts = query_db('SELECT p.*, u.*, (SELECT COUNT(*) FROM Comments WHERE p_id=p.id) AS cc FROM Posts AS p JOIN Users AS u ON u.id=p.u_id WHERE p.u_id IN (SELECT u_id FROM Friends WHERE f_id={0}) OR p.u_id IN (SELECT f_id FROM Friends WHERE u_id={0}) OR p.u_id={0} ORDER BY p.creation_time DESC;'.format(user['id']))
     return render_template('stream.html', title='Stream', username=username, form=form, posts=posts)
+
+def legalimg(filename):
+    if not "." in filename:
+        return False
+    filtyp = filename.rsplit(".", 1)[1]
+    if filtyp.lower() in app.config["ALLOWED_EXTENSIONS"]:
+        return True
+    else:
+        return False
+
+def allowed_image_filesize(filesize):
+
+    if int(filesize) <= app.config["MAX_IMAGE_FILESIZE"]:
+        return True
+    else:
+        return False
 
 # comment page for a given post and user.
 @app.route('/comments/<username>/<int:p_id>', methods=['GET', 'POST'])
