@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField, FileField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField, FileField, Form, validators, ValidationError
 from wtforms.fields.html5 import DateField
 
 # defines all forms in the application, these will be instantiated by the template,
@@ -7,9 +7,11 @@ from wtforms.fields.html5 import DateField
 # TODO: Add validation, maybe use wtforms.validators??
 # TODO: There was some important security feature that wtforms provides, but I don't remember what; implement it
 
+
+
 class LoginForm(FlaskForm):
-    username = StringField('Username', render_kw={'placeholder': 'Username'})
-    password = PasswordField('Password', render_kw={'placeholder': 'Password'})
+    username = StringField('Username', validators=[InputRequired(message="Username required")], render_kw={'placeholder': 'Username'})
+    password = PasswordField('Password', validators=[InputRequired(message="Password required")], render_kw={'placeholder': 'Password'})
     remember_me = BooleanField('Remember me') # TODO: It would be nice to have this feature implemented, probably by using cookies
     submit = SubmitField('Sign In')
 
@@ -20,6 +22,7 @@ class RegisterForm(FlaskForm):
     password = PasswordField('Password', render_kw={'placeholder': 'Password'})
     confirm_password = PasswordField('Confirm Password', render_kw={'placeholder': 'Confirm Password'})
     submit = SubmitField('Sign Up')
+
 
 class IndexForm(FlaskForm):
     login = FormField(LoginForm)

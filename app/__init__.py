@@ -1,6 +1,7 @@
 from flask import Flask, g
 from config import Config
 from flask_bootstrap import Bootstrap
+from flask_wtf.csrf import CSRFProtect #Testing
 #from flask_login import LoginManager
 import sqlite3
 import os
@@ -9,6 +10,11 @@ import os
 app = Flask(__name__)
 Bootstrap(app)
 app.config.from_object(Config)
+<<<<<<< Updated upstream
+=======
+app.config['DEBUG'] = True
+csrf = CSRFProtect(app)
+>>>>>>> Stashed changes
 
 # TODO: Handle login management better, maybe with flask_login?
 #login = LoginManager(app)

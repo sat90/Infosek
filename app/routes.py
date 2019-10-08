@@ -1,7 +1,12 @@
 from flask import render_template, flash, redirect, url_for, request
 from app import app, query_db
-from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
+from app.forms import PostForm, FriendsForm, ProfileForm, CommentsForm, RegisterForm, LoginForm, IndexForm, InputRequired
 from datetime import datetime
+<<<<<<< Updated upstream
+=======
+from passlib.hash import pbkdf2_sha256 #pip install passlib
+
+>>>>>>> Stashed changes
 import os
 
 # this file contains all the different routes, and the logic for communicating with the database
@@ -12,9 +17,26 @@ import os
 def index():
     form = IndexForm()
 
-    if form.login.is_submitted() and form.login.submit.data:
-        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
+    flash(form.errors)
+    if form.login.validate_on_submit():
+        username_entered = form.login.username.data
+        password_entered = form.login.password.data
+
+        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username_entered), one=True)
         if user == None:
+            flash("Username or password incorrect")
+        elif not pbkdf2_sha256.verify(password_entered, user['password']):
+            flash("Username or password incorrect")
+        elif pbkdf2_sha256.verify(password_entered, user['password']):
+            return redirect(url_for('stream', username=username_entered))
+    elif form.register.validate_on_submit():
+        username = form.register.username.data
+        password = form.register.password.data
+        
+        encrypt_pswd = pbkdf2_sha256.hash(password) #Hashes and adds a 16byte salt, by default adds 29000 iterations. 
+        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
+        if user == None:
+<<<<<<< Updated upstream
             flash('Sorry, this user does not exist!')
         elif user['password'] == form.login.password.data:
             return redirect(url_for('stream', username=form.login.username.data))
@@ -27,6 +49,16 @@ def index():
         return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
 
+=======
+            query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
+            form.register.last_name.data, encrypt_pswd))
+            return redirect(url_for('index')), flash('New user registered!')
+        else:
+            flash('Username already exists.')
+    return render_template('index.html', title='Welcome', form=form)
+
+
+>>>>>>> Stashed changes
 #test
 
 # content stream page
