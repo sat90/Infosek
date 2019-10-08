@@ -7,4 +7,4 @@ class Config(object):
     DATABASE = 'database.db'
     UPLOAD_PATH = 'app/static/uploads'
     ALLOWED_EXTENSIONS = {'bmp', 'gif', 'jpeg', 'jpg', 'tex',
-    'doc', 'docx', 'odt', 'txt', 'pdf', 'png', 'rtf'} # Only allowing some file types.
+                          'doc', 'docx', 'odt', 'txt', 'pdf', 'png', 'rtf'} # Only allowing some file types.

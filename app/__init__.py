@@ -2,7 +2,6 @@ from flask import Flask, g
 from config import Config
 from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect #Testing
-#from flask_login import LoginManager
 import sqlite3
 import os
 
@@ -14,9 +13,6 @@ app.config.from_object(Config)
 app.config['RECAPTCHA_PUBLIC_KEY'] = '6Ldje7wUAAAAAF4yvr1a8cliU_ujRZ9Ft194dZK9'
 app.config['RECAPTCHA_PRIVATE_KEY'] = '6Ldje7wUAAAAABNORn3m7cNbrC-LgnjinbxlmqI_'
 csrf = CSRFProtect(app)
-
-# TODO: Handle login management better, maybe with flask_login?
-#login = LoginManager(app)
 
 # get an instance of the db
 def get_db():
