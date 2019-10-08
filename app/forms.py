@@ -10,7 +10,7 @@ import re
 
 def is_proper_username(form, field):
     if not re.match(r"^\w+$", field.data):
-        msg = 'Username can only contain these characters only: a-z, A-Z, 0-9 and _'
+        msg = 'Username can only contain these characters: a-z, A-Z, 0-9 and _'
         raise ValidationError(msg)
 
 def validate_password(form, field):
