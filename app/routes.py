@@ -27,7 +27,7 @@ def index():
         username_entered = form.login.username.data
         password_entered = form.login.password.data
 
-        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username_entered), one=True)
+        user = query_db('SELECT * FROM Users WHERE username = %(username_entered)s', {'username_entered': username_entered}, one=True);
         if user == None:
             flash("Username or password incorrect")
         elif not pbkdf2_sha256.verify(password_entered, user['password']):
@@ -40,7 +40,7 @@ def index():
         password = form.register.password.data
 
         encrypt_pswd = pbkdf2_sha256.hash(password) #Hashes and adds a 16byte salt, by default adds 29000 iterations.
-        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
+        user = query_db('SELECT * FROM Users WHERE username = %(username)s', {'username': username}, one=True);
         if user == None:
             query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
             form.register.last_name.data, encrypt_pswd))
@@ -50,8 +50,6 @@ def index():
     return render_template('index.html', title='Welcome', form=form)
 
 
-#test
-
 # content stream page
 @app.route('/stream/<username>', methods=['GET', 'POST'])
 def stream(username):
@@ -59,7 +57,7 @@ def stream(username):
         session["err"]="trying to get into another stream"
         return redirect(url_for('error'))
     form = PostForm()
-    user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
+    user = query_db('SELECT * FROM Users WHERE username = %(username)s', {'username': username}, one=True);
     if form.is_submitted():
         if form.image.data:
 
@@ -79,7 +77,7 @@ def stream(username):
         query_db('INSERT INTO Posts (u_id, content, image, creation_time) VALUES({}, "{}", "{}", \'{}\');'.format(user['id'], form.content.data, form.image.data.filename, datetime.now()))
         return redirect(url_for('stream', username=username))
 
-    posts = query_db('SELECT p.*, u.*, (SELECT COUNT(*) FROM Comments WHERE p_id=p.id) AS cc FROM Posts AS p JOIN Users AS u ON u.id=p.u_id WHERE p.u_id IN (SELECT u_id FROM Friends WHERE f_id={0}) OR p.u_id IN (SELECT f_id FROM Friends WHERE u_id={0}) OR p.u_id={0} ORDER BY p.creation_time DESC;'.format(user['id']))
+    posts = query_db('SELECT p.*, u.*, (SELECT COUNT(*) FROM Comments WHERE p_id=p.id) AS cc FROM Posts AS p JOIN Users AS u ON u.id=p.u_id WHERE p.u_id IN (SELECT u_id FROM Friends WHERE f_id=%(id)s) OR p.u_id IN (SELECT f_id FROM Friends WHERE u_id={0}) OR p.u_id={0} ORDER BY p.creation_time DESC;', {'id': user['id']})
     return render_template('stream.html', title='Stream', username=username, form=form, posts=posts)
 
 def legalimg(filename):
@@ -103,11 +101,11 @@ def allowed_image_filesize(filesize):
 def comments(username, p_id):
     form = CommentsForm()
     if form.is_submitted():
-        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
+        user = query_db('SELECT * FROM Users WHERE username = %(username)s', {'username': username}, one=True);
         query_db('INSERT INTO Comments (p_id, u_id, comment, creation_time) VALUES({}, {}, "{}", \'{}\');'.format(p_id, user['id'], form.comment.data, datetime.now()))
 
-    post = query_db('SELECT * FROM Posts WHERE id={};'.format(p_id), one=True)
-    all_comments = query_db('SELECT DISTINCT * FROM Comments AS c JOIN Users AS u ON c.u_id=u.id WHERE c.p_id={} ORDER BY c.creation_time DESC;'.format(p_id))
+    post = query_db('SELECT * FROM Posts WHERE id = %(id)s', {'id': p_id}, one=True);
+    all_comments = query_db('SELECT DISTINCT * FROM Comments AS c JOIN Users AS u ON c.u_id=u.id WHERE c.p_id=%(id)s ORDER BY c.creation_time DESC', {'id': p_id});
     return render_template('comments.html', title='Comments', username=username, form=form, post=post, comments=all_comments)
 
 # page for seeing and adding friends
@@ -117,15 +115,15 @@ def friends(username):
         session["err"]="trying to get into anothers friendlist"
         return redirect(url_for('error'))
     form = FriendsForm()
-    user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
+    user = query_db('SELECT * FROM Users WHERE username = %(username)s', {'username': username}, one=True);
     if form.is_submitted():
-        friend = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.username.data), one=True)
+        friend = query_db('SELECT * FROM Users WHERE username = %(username)s', {'username': form.username.data}, one=True);
         if friend is None:
             flash('User does not exist')
         else:
             query_db('INSERT INTO Friends (u_id, f_id) VALUES({}, {});'.format(user['id'], friend['id']))
 
-    all_friends = query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id={} AND f.f_id!={} ;'.format(user['id'], user['id']))
+    all_friends = query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id=%(id)s AND f.f_id!=%(id)s ;', {'id': user['id']})
     return render_template('friends.html', title='Friends', username=username, friends=all_friends, form=form)
 
 # see and edit detailed profile information of a user
@@ -134,9 +132,8 @@ def profile(username):
     form = ProfileForm()
     if form.is_submitted():
         if username==session['user']:
-            query_db('UPDATE Users SET education="{}", employment="{}", music="{}", movie="{}", nationality="{}", birthday=\'{}\' WHERE username="{}" ;'.format(
-                form.education.data, form.employment.data, form.music.data, form.movie.data, form.nationality.data, form.birthday.data, username
-                ))
+            query_db('UPDATE Users SET education=%(education)s, employment=%(employment)s, music=%(music)s, movie=%(movie)s, nationality=%(nationality)s, birthday=\'%(birthday)s\' WHERE username=%(username)',
+                {'education': form.education.data, 'employment': form.employment.data, 'music': form.music.data, 'movie': form.movie.data, 'nationality': form.nationality.data, 'birthday': form.birthday.data, 'username': username});
         else:
             session["err"]="trying to edit someone elses profile"
             return redirect(url_for('error'))
@@ -145,7 +142,7 @@ def profile(username):
 
 
 
-    user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
+    user = query_db('SELECT * FROM Users WHERE username = %(username)s', {'username': username}, one=True);
     return render_template('profile.html', title='profile', username=username, user=session["user"], form=form)
 
 @app.route('/logout', methods=['GET', 'POST'])
