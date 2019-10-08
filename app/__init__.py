@@ -10,11 +10,8 @@ import os
 app = Flask(__name__)
 Bootstrap(app)
 app.config.from_object(Config)
-<<<<<<< Updated upstream
-=======
 app.config['DEBUG'] = True
 csrf = CSRFProtect(app)
->>>>>>> Stashed changes
 
 # TODO: Handle login management better, maybe with flask_login?
 #login = LoginManager(app)

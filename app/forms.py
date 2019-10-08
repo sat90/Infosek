@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField, FileField, Form, validators, ValidationError
 from wtforms.fields.html5 import DateField
-
+from wtforms.validators import InputRequired, Length, EqualTo
 # defines all forms in the application, these will be instantiated by the template,
 # and the routes.py will read the values of the fields
 # TODO: Add validation, maybe use wtforms.validators??
@@ -10,17 +10,17 @@ from wtforms.fields.html5 import DateField
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[InputRequired(message="Username required")], render_kw={'placeholder': 'Username'})
-    password = PasswordField('Password', validators=[InputRequired(message="Password required")], render_kw={'placeholder': 'Password'})
+    username = StringField('Username', validators=[InputRequired(message="Username required"), Length(min=8, max=25, message="Outside limitations")], render_kw={'placeholder': 'Username'})
+    password = PasswordField('Password', validators=[InputRequired(message="Password required"), Length(min=8, max=25, message="Outside limitations")], render_kw={'placeholder': 'Password'})
     remember_me = BooleanField('Remember me') # TODO: It would be nice to have this feature implemented, probably by using cookies
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
-    first_name = StringField('First Name', render_kw={'placeholder': 'First Name'})
-    last_name = StringField('Last Name', render_kw={'placeholder': 'Last Name'})
-    username = StringField('Username', render_kw={'placeholder': 'Username'})
-    password = PasswordField('Password', render_kw={'placeholder': 'Password'})
-    confirm_password = PasswordField('Confirm Password', render_kw={'placeholder': 'Confirm Password'})
+    first_name = StringField('First Name', validators=[InputRequired(message="First name required"), Length(min=2, max=25, message="First name must contain between 2 and 25 characters")], render_kw={'placeholder': 'First Name'})
+    last_name = StringField('Last Name', validators=[InputRequired(message="Last name required"), Length(min=2, max=25, message="Last name must contain between 2 and 25 characters")], render_kw={'placeholder': 'Last Name'})
+    username = StringField('Username', validators=[InputRequired(message="Username required"), Length(min=8, max=25, message="Username must contain between 8 and 25 characters")], render_kw={'placeholder': 'Username'})
+    password = PasswordField('Password', validators=[InputRequired(message="Password required"), Length(min=8, max=25, message="Password must contain between 2 and 25 characters")], render_kw={'placeholder': 'Password'})
+    confirm_password = PasswordField('Confirm Password', validators=[InputRequired(message="Password required"), EqualTo('password', message="Password must match")], render_kw={'placeholder': 'Confirm Password'})
     submit = SubmitField('Sign Up')
 
 
