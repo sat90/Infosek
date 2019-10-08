@@ -12,6 +12,7 @@ from wtforms.validators import InputRequired, Length, EqualTo
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired(message="Username required"), Length(min=4, max=25, message="Outside limitations")], render_kw={'placeholder': 'Username'})
     password = PasswordField('Password', validators=[InputRequired(message="Password required"), Length(min=8, max=25, message="Outside limitations")], render_kw={'placeholder': 'Password'})
+    remember_me = BooleanField('Remember me') # TODO: It would be nice to have this feature implemented, probably by using cookies
 
     submit = SubmitField('Sign In')
 
