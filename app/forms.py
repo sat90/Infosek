@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField, FileField, Form, ValidationError
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField, FileField, ValidationError
 from wtforms.fields.html5 import DateField
 from wtforms.validators import InputRequired, Length, EqualTo
 # defines all forms in the application, these will be instantiated by the template,
