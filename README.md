@@ -1,12 +1,3 @@
-# To-do:
-
-1. fix unsecure routing( i.e. replace your name with another users in link to log on his acc) maybe using session
-2. fix friends edit privlige
-3. check for sqli attacks
-
-Document all changes, problems, fixes to these problems here:
-https://docs.google.com/document/d/1No9GyHkikDNwwPW2fMUcbhruDTgPzDR2u0jtzqTDnH0/edit?usp=sharing
-
 # social-insecurity
 
 This project defines a social media web application lacking many key security features. The goal is to identify as many of these as possible, and then proceed to patch them. It can also be used for practice from the perspective of an attacker.
