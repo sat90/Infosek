@@ -8,11 +8,14 @@ import os
 # create and configure app
 app = Flask(__name__)
 Bootstrap(app)
+
 app.config.from_object(Config)
 # app.config['DEBUG'] = True
 app.config['RECAPTCHA_PUBLIC_KEY'] = '6Ldje7wUAAAAAF4yvr1a8cliU_ujRZ9Ft194dZK9'
 app.config['RECAPTCHA_PRIVATE_KEY'] = '6Ldje7wUAAAAABNORn3m7cNbrC-LgnjinbxlmqI_'
+
 csrf = CSRFProtect(app)
+
 
 # get an instance of the db
 def get_db():
@@ -22,6 +25,7 @@ def get_db():
     db.row_factory = sqlite3.Row
     return db
 
+
 # initialize db for the first time
 def init_db():
     with app.app_context():
@@ -30,7 +34,8 @@ def init_db():
             db.cursor().executescript(f.read())
         db.commit()
 
-# perform generic query, not very secure yet
+
+# adding to database
 def query_db(query, one=False):
     sql, tup = query
     db = get_db()
@@ -40,7 +45,6 @@ def query_db(query, one=False):
     db.commit()
     return (rv[0] if rv else None) if one else rv
 
-# TODO: Add more specific queries to simplify code
 
 # automatically called when application is closed, and closes db connection
 @app.teardown_appcontext
@@ -48,6 +52,7 @@ def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
+
 
 # initialize db if it does not exist
 if not os.path.exists(app.config['DATABASE']):

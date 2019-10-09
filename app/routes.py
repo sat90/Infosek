@@ -21,7 +21,6 @@ def index():
 
     form = IndexForm()
 
-    #flash(form.errors)
     if form.login.validate_on_submit():
         username_entered = form.login.username.data
         password_entered = form.login.password.data
@@ -110,7 +109,7 @@ def comments(username, p_id):
     if form.is_submitted():
         query = ('SELECT * FROM Users WHERE username=?;', (username,))
         user = query_db(query, one=True)
-        query = ('INSERT INTO Comments (p_id, u_id, comment, creation_time) VALUES(?, ?, ?, \'?\');', (p_id, user['id'], form.comment.data, datetime.now()))
+        query = ('INSERT INTO Comments (p_id, u_id, comment, creation_time) VALUES(?, ?, ?, ?);', (p_id, user['id'], form.comment.data, datetime.now()))
         query_db(query)
 
     query = ('SELECT * FROM Posts WHERE id=?;', (p_id,))
