@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, query_db
 from app.forms import PostForm, FriendsForm, ProfileForm, CommentsForm, RegisterForm, LoginForm, IndexForm
 from datetime import datetime
-from passlib.hash import pbkdf2_sha256 
+from passlib.hash import pbkdf2_sha256
 
 import os
 
@@ -21,7 +21,7 @@ def index():
 
     form = IndexForm()
 
-    flash(form.errors)
+    #flash(form.errors)
     if form.login.validate_on_submit():
         username_entered = form.login.username.data
         password_entered = form.login.password.data
@@ -85,7 +85,7 @@ def stream(username):
     posts = query_db(query)
     return render_template('stream.html', title='Stream', username=username,sessionuser=session["user"], form=form, posts=posts)
 
-  
+
 def legalimg(filename):
     if not "." in filename:
         return False
@@ -173,4 +173,3 @@ def logout():
 @app.route('/error', methods=['GET', 'POST'])
 def error():
     return render_template('noaccess.html', username=session["user"], err = session["err"],sessionuser=session["user"])
-
