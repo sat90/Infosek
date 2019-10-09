@@ -14,6 +14,7 @@ import os
 @app.route('/index', methods=['GET', 'POST'])
 def index():
 
+
     if "user" in session.keys():
         if session["user"]:
             return redirect(url_for('stream', username=session["user"],sessionuser=session["user"]))
