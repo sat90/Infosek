@@ -32,8 +32,9 @@ def validate_password(form, field):
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired(message="Username required"), is_proper_username, Length(min=4, max=25, message="Outside limitations")], render_kw={'placeholder': 'Username'})
     password = PasswordField('Password', validators=[InputRequired(message="Password required"), validate_password, Length(min=8, max=25, message="Outside limitations")], render_kw={'placeholder': 'Password'})
-    remember_me = BooleanField('Remember me') # TODO: It would be nice to have this feature implemented, probably by using cookies
+    remember_me = BooleanField('Remember me')
     recaptcha = RecaptchaField()
+
     submit = SubmitField('Sign In')
 
 
@@ -43,7 +44,7 @@ class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired(message="Username required"), is_proper_username, Length(min=4, max=25, message="Username must contain between 4 and 25 characters")], render_kw={'placeholder': 'Username'})
     password = PasswordField('Password', validators=[InputRequired(message="Password required"), validate_password, Length(min=8, max=25, message="Password must contain between 8 and 25 characters")], render_kw={'placeholder': 'Password'})
     confirm_password = PasswordField('Confirm Password', validators=[InputRequired(message="Password required"), validate_password, EqualTo('password', message="Password must match")], render_kw={'placeholder': 'Confirm Password'})
-    recaptcha = RecaptchaField()
+
     submit = SubmitField('Sign Up')
 
 
